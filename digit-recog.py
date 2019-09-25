@@ -13,13 +13,17 @@ import matplotlib.pyplot as plt
 #from scipy.spatial import distance
 from itertools import combinations 
 from sklearn.metrics import confusion_matrix
+from collections import defaultdict
 
 # extract pixel data (pixel0 tp pixel784)
 # extract labels
 train_data = np.loadtxt(open("./digit-recognizer/train_1.csv", "rb"), delimiter=",", skiprows=1, usecols=range(1,785), dtype=np.int)
 labels = np.loadtxt(open("./digit-recognizer/train_1.csv", "rb"), delimiter=",", skiprows=1, usecols=range(0,1), dtype=np.int)
+test_data = np.loadtxt(open("./digit-recognizer/test_1.csv", "rb"), delimiter=",", skiprows=1, usecols=range(0,784), dtype=np.int)
 
 print(train_data.shape)
+print(test_data.shape)
+
 #print(train_data)
 
 # extract index of zeros and ones  
@@ -30,11 +34,6 @@ for i in range(0,len(train_data)):
         zeros.append(i)
     if labels[i] == 1:
         ones.append(i)
-        
-print(len(zeros))
-print(len(ones))
-
-     
             
 # a function to display an MNIST digit
 def display_digit(index):
@@ -67,7 +66,7 @@ def match_digits():
     for i in range(10):
         display_match(digit_index[i])
     
-
+# find distance given two indices of train_data
 def find_distance(index1,index2):
 #    return distance.euclidean(train_data[index1], train_data[index2])
     return np.linalg.norm(train_data[index1] - train_data[index2])
@@ -86,7 +85,6 @@ def display_match(index):
         ax.set_title("*",fontsize=18)
   
 def match_by_index(index):
-#    print("looking for digit at row %d, which is a %d" % (index, labels[index]))    
     min_d = float("inf")
     match = index
     
@@ -97,7 +95,7 @@ def match_by_index(index):
         if (d < min_d and i!=index):
             match = i
             min_d = d      
-#    print("best match for row %d is at row %d, dist=%f" % (index, match, min_d))
+#    print("best match for row %d is at row %d, dist=%f, %d,%d" % (index, match, min_d,labels[index],labels[match]))
     return match
 
 
@@ -188,4 +186,54 @@ def display_ROC(genuine,impostor):
 #display_digits()
 #display_distribution()
 # match_digits()
-zeros_ones()
+#zeros_ones()
+    
+
+
+def KNN(test_case, train_data, train_labels, k):    
+    output = []
+    
+    # for each test case, iterate in the training data and find all distances
+    ds = []
+    for i in range(len(train_data)):
+        d = np.linalg.norm(train_data[i] - test_case)
+        ds.append((i, d))
+#    print(ds)
+    ds.sort(key=lambda elem: elem[1])
+    
+    
+    # find k neighbors
+    neighbors = []
+    for i in range(k):
+        neighbors.append(ds[i][0])
+    
+    # find freq
+    freq = {}
+    for i in range(len(neighbors)):
+        response = labels[neighbors[i]]
+        if response in freq:
+            freq[response] += 1
+        else:
+            freq[response] = 1
+    
+    freq = sorted(freq.items(), key=lambda elem: elem[1], reverse=True)
+    match = freq[0][0]
+    return match
+
+
+def run_KNN(test_data, train_data, train_labels, k):
+    preds=[]
+    for i in range(len(test_data)):
+        print("*** current test case: %d" % i)
+        match = KNN(test_data[i],train_data, train_labels, k)
+        print(match)
+        preds.append(match)
+    
+#        plt.figure(figsize=(1, 1))
+#        ax = plt.subplot(1,1,1)
+#        ax.imshow(test_data[i].reshape(28,28), cmap='gray')
+#        plt.show()
+ 
+    return preds
+
+print(run_KNN(test_data, train_data, labels, 3))
