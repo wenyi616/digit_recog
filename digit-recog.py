@@ -15,8 +15,8 @@ from sklearn.metrics import confusion_matrix
 
 # extract pixel data (pixel0 tp pixel784)
 # extract labels
-train_data = np.loadtxt(open("./digit-recognizer/train_2.csv", "rb"), delimiter=",", skiprows=1, usecols=range(1,785), dtype=np.int)
-labels = np.loadtxt(open("./digit-recognizer/train_2.csv", "rb"), delimiter=",", skiprows=1, usecols=range(0,1), dtype=np.int)
+train_data = np.loadtxt(open("./digit-recognizer/train.csv", "rb"), delimiter=",", skiprows=1, usecols=range(1,785), dtype=np.int)
+labels = np.loadtxt(open("./digit-recognizer/train.csv", "rb"), delimiter=",", skiprows=1, usecols=range(0,1), dtype=np.int)
 test_data = np.loadtxt(open("./digit-recognizer/test.csv", "rb"), delimiter=",", skiprows=1, usecols=range(0,784), dtype=np.int)
 
 all_digit_index = [1,0,16,7,3,8,21,6,10,11]
